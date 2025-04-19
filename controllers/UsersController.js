@@ -1,4 +1,4 @@
-const Users = require("../models/Users")
+const Users = require("../models/User")
 const Token = require("../models/Token");
 
 const bcrypt = require('bcryptjs');
@@ -66,7 +66,7 @@ exports.registerUser = async (req, res) => {
     
       await Token.create({ user: user._id, token: refreshToken });
     
-      res.status(200).json({ accessToken, refreshToken });
+      res.status(200).json({user: user._id, accessToken, refreshToken });
     } catch (error) {
       console.error("❌ Login error:", error); // In chi tiết lỗi
       res.status(500).json({ error: "Login failed", message: error.message });
