@@ -65,8 +65,9 @@ exports.registerUser = async (req, res) => {
       const refreshToken = generateRefreshToken(user);
     
       await Token.create({ user: user._id, token: refreshToken });
-    
-      res.status(200).json({user: user._id, accessToken, refreshToken });
+      const { password: _, ...userWithoutPassword } = user._doc;
+
+      res.status(200).json({user: userWithoutPassword, accessToken, refreshToken });
     } catch (error) {
       console.error("❌ Login error:", error); // In chi tiết lỗi
       res.status(500).json({ error: "Login failed", message: error.message });
