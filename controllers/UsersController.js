@@ -51,28 +51,35 @@ exports.registerUser = async (req, res) => {
     }
   };
 
-  exports.LoginUser  = async (req, res) =>{
-    const{ phoneNumber, password } = req.body;
-
+  exports.LoginUser = async (req, res) => {
+    const { phoneNumber, password } = req.body;
+  
     try {
       const user = await Users.findOne({ phoneNumber });
       if (!user) return res.status(404).json({ error: "User not found" });
-    
+  
       const isMatch = await bcrypt.compare(password + process.env.SECRET_KEY, user.password);
       if (!isMatch) return res.status(400).json({ error: "Wrong Password" });
-    
+  
       const accessToken = generateAccessToken(user);
       const refreshToken = generateRefreshToken(user);
-    
+  
       await Token.create({ user: user._id, token: refreshToken });
+  
+      // 👇 Loại bỏ trường password
       const { password: _, ...userWithoutPassword } = user._doc;
-
-      res.status(200).json({uid: user.uid, accessToken, refreshToken });
+  
+      res.status(200).json({
+        user: userWithoutPassword,
+        accessToken,
+        refreshToken
+      });
     } catch (error) {
-      console.error("❌ Login error:", error); // In chi tiết lỗi
+      console.error("❌ Login error:", error);
       res.status(500).json({ error: "Login failed", message: error.message });
     }
   };
+  
 
   exports.logoutUser = async (req, res) => {
     const { refreshToken } = req.body;
