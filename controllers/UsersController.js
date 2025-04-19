@@ -66,11 +66,14 @@ exports.registerUser = async (req, res) => {
   
       await Token.create({ user: user._id, token: refreshToken });
   
-      // 👇 Loại bỏ trường password
-      const { password: _, ...userWithoutPassword } = user._doc;
+      // 👇 Loại bỏ trường password và trả về user với uid
+      const User = {
+        uid: user.uid,  
+        phoneNumber: user.phoneNumber,
+      };
   
       res.status(200).json({
-        user: userWithoutPassword,
+        user: User,  // Dữ liệu trả về bao gồm uid và phoneNumber
         accessToken,
         refreshToken
       });
@@ -79,6 +82,7 @@ exports.registerUser = async (req, res) => {
       res.status(500).json({ error: "Login failed", message: error.message });
     }
   };
+  
   
 
   exports.logoutUser = async (req, res) => {
