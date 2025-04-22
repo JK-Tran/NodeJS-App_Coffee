@@ -11,15 +11,36 @@ const {
 
 dotenv.config();
 
+exports.checkPhoneNumber = async (req, res) => {
+  const { phoneNumber } = req.body;
+
+  try {
+    const user = await Users.findOne({ phoneNumber });
+    console.log("Checking phone number:", phoneNumber);
+
+    if (user) {
+      return res.status(200).json({
+        exists: true,
+        message: "Phone already exists"
+      });
+    }
+
+    return res.status(200).json({ exists: false });
+  } catch (err) {
+    console.error("❌ Error checking phone number:", err);
+    return res.status(500).json({ message: "Lỗi server" });
+  }
+};
+
 exports.registerUser = async (req, res) => {
     const { uid, phoneNumber, firstName, lastName, password } = req.body;
   
     try {
-      // Kiểm tra user đã tồn tại
-      const existingUser = await Users.findOne({ uid });
-      if (existingUser) {
-        return res.status(400).json({ error: "User already exists!" });
-      }
+      // // Kiểm tra user đã tồn tại
+      // const existingUser = await Users.findOne({ uid });
+      // if (existingUser) {
+      //   return res.status(400).json({ error: "User already exists!" });
+      // }
   
       // Mã hoá mật khẩu với SECRET_KEY
       const salt = await bcrypt.genSalt(10);
@@ -72,7 +93,7 @@ exports.registerUser = async (req, res) => {
         phoneNumber: user.phoneNumber,
       };
   
-      res.status(200).json({
+      res.status(200).json({  
         user: User,  // Dữ liệu trả về bao gồm uid và phoneNumber
         accessToken,
         refreshToken
@@ -112,9 +133,11 @@ exports.registerUser = async (req, res) => {
       const savedToken = await Token.findOne({ token: refreshToken });
       if (!savedToken) return res.status(403).json({ error: "Invalid token" });
   
+      // Giải mã refreshToken để lấy thông tin người dùng
       const decoded = verifyRefreshToken(refreshToken);
   
-      const user = await Users.findById(decoded.id);
+       // Tìm người dùng bằng uid đã giải mã từ token
+      const user = await Users.findOne({ uid: decoded.uid });
       if (!user) return res.status(404).json({ error: "User not found" });
   
       const newAccessToken = generateAccessToken(user);

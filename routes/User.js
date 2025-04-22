@@ -3,6 +3,7 @@ const router = express.Router();
 const UsersController = require('../controllers/UsersController');
 const verifyToken = require("../middleware/verifyToken");
 
+router.post('/check-phone', UsersController.checkPhoneNumber);
 router.post('/register', UsersController.registerUser);
 // Đăng nhập -> trả về accessToken và refreshToken
 router.post('/login', UsersController.LoginUser);

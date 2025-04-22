@@ -7,7 +7,7 @@ const TokenSchema = new mongoose.Schema({
         required: true,
     },
     token: { type: String, required: true},
-    expiresAt: {type: Date, default: Date.now,expires: '7d'},
+    expiresAt: {type: Date, default: Date.now, expires: 7 * 24 * 60 * 60},
 
 },{ timestamps: true });
 
